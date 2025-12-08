@@ -1,13 +1,14 @@
 <h1>Привет!</h1>
 
-<p>Здесь представлен проект по расчитыванию среднего значения от чисел</p>
+<p>Здесь представлен проект вычислению периметра и площади фигур</p>
 
+Пример использования:
 <pre>
-def calculate_average(nums):
-    total = sum(nums)
-    count = len(nums)
-    average = total / count
-    return average
-
-nums = [10, 15, 20]
-print("Среднее:", calculate_average(nums))</pre>
+>>> square = Square(10) # Так создаем квадрат со стороной 10
+>>> square.get_area()
+100
+>>> triangle = Triangle(13, 14, 15) # Так создаем треугольник со сторонами 13, 14, 15
+>>> triangle.get_area()
+84
+>>> triangle.add_area(square)
+184</pre>
