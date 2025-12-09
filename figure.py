@@ -1,16 +1,14 @@
 from abc import abstractmethod, ABC
 
-from util import get_round
+from util import get_round, check_parameters
 
 
 class Figure(ABC):
     @abstractmethod
-    @get_round
     def get_perimeter(self):
         pass
 
     @abstractmethod
-    @get_round
     def get_area(self):
         pass
 
