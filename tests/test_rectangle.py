@@ -1,10 +1,14 @@
 import pytest
 
+from src.figure import Figure
 from src.rectangle import Rectangle
 
 @pytest.fixture
 def create_object():
     return Rectangle(3, 4)
+
+def object_is_instance_of_parent(create_object):
+    assert isinstance(create_object, Figure)
 
 @pytest.mark.parametrize("a, b", [
     (0, 0),
