@@ -1,14 +1,15 @@
 import pytest
 
-from src.figure import Figure
-from src.rectangle import Rectangle
+from figure import Figure
+from rectangle import Rectangle
+
 
 @pytest.fixture
-def create_object():
-    return Rectangle(3, 4)
-
-def object_is_instance_of_parent(create_object):
-    assert isinstance(create_object, Figure)
+def rectangles():
+    r1 = Rectangle(2, 3)
+    r2 = Rectangle(4, 5)
+    r3 = Rectangle(1, 1)
+    return r1, r2, r3
 
 @pytest.mark.parametrize("a, b", [
     (0, 0),
@@ -18,8 +19,29 @@ def test_object_non_positive_param(a, b):
     with pytest.raises(ValueError):
         Rectangle(a, b)
 
-def test_get_area(create_object):
-    assert create_object.get_area() == 12
+@pytest.mark.parametrize("a, b, expected_area", [
+    (3, 4, 12),
+])
+def test_get_area(a, b, expected_area):
+    rectangle = Rectangle(a, b)
+    assert rectangle.get_area() == expected_area
 
-def test_get_perimeter(create_object):
-    assert create_object.get_perimeter() == 14
+@pytest.mark.parametrize("a, b, expected_perimeter", [
+    (3, 4, 14),
+])
+def test_get_perimeter(a, b, expected_perimeter):
+    rectangle = Rectangle(a, b)
+    assert rectangle.get_perimeter() == expected_perimeter
+
+def test_add_area(rectangles):
+    r1, r2, r3 = rectangles
+
+    expected = r1.get_area() + r2.get_area()
+    result = r1.add_area(r2)
+    assert result == expected
+
+    expected = r1.get_area() + r2.get_area() + r3.get_area()
+    result = r1.add_area(r2, r3)
+    assert result == expected
+
+    assert isinstance(r1, Figure)
