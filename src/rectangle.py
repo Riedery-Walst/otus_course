@@ -1,17 +1,17 @@
 from figure import Figure
-from rectangle import Rectangle
 from util import check_parameters, get_round
 
 
-class Square(Figure):
+class Rectangle(Figure):
     @check_parameters
-    def __init__(self, a: int | float):
+    def __init__(self, a: int | float, b: int | float):
         self.a = a
+        self.b = b
 
     @get_round
     def get_area(self):
-        return self.a * self.a
+        return self.a * self.b
 
     @get_round
     def get_perimeter(self):
-        return self.a * 4
+        return self.a * 2 + self.b * 2
