@@ -1,6 +1,6 @@
 from abc import abstractmethod, ABC
 
-from util import get_round, check_parameters
+from util import get_round
 
 
 class Figure(ABC):
