@@ -1,29 +1,54 @@
-import json
-
 import pytest
-import requests
-from jsondiff import diff
 
-from tests.logger import create_logger
+from tests.base_service import get
 
-logger = create_logger()
 
-DATA_PATH = "data/"
-ALL_DOG_BREADS_JSON = DATA_PATH + "all_dog_breads.json"
+BASE_URL = "https://dog.ceo/api"
 
-@pytest.fixture
-def load_all_dog_bread():
-    with open(ALL_DOG_BREADS_JSON, "r") as f:
-       return json.load(f)
+@pytest.fixture(scope="session")
+def get_all_dog_breeds_list():
+    response = get(f"{BASE_URL}/breeds/list/all")
+    return response.json()
 
-def test_get_random_dog():
-    response = requests.get("https://dog.ceo/api/breeds/image/random")
-    assert response.status_code == 200
-    assert response.json().get("status") == "success"
+def test_get_random_dog_image():
+    response = get(f"{BASE_URL}/breeds/image/random")
 
-def test_get_all_dog_breads(load_all_dog_bread):
-    expected = load_all_dog_bread
-    response = requests.get("https://dog.ceo/api/breeds/list/all")
-    assert response.status_code == 200
-    assert diff(response, expected)
+    data = response.json()
 
+    assert "status" in data and data["status"] == "success"
+    assert "message" in data
+
+@pytest.mark.parametrize("breed, expected_status_code, expected_status_message" , [
+    ("invalidbreed", 404, "error"),
+    ("hound", 200, "success")
+])
+def test_get_images_by_dog_breed(breed, expected_status_code, expected_status_message):
+    response = get(f"{BASE_URL}/breed/{breed}/images", expected_status=expected_status_code)
+
+    data = response.json()
+
+    assert "status" in data and data["status"] == expected_status_message
+    assert "message" in data
+
+def test_get_dog_sub_breeds_list(get_all_dog_breeds_list):
+    all_breeds = get_all_dog_breeds_list.get("message")
+    for breed, expected_sub_breeds in all_breeds.items():
+        response = get(f"{BASE_URL}/breed/{breed}/list")
+        assert set(response.json().get("message")) == set(expected_sub_breeds)
+
+        data = response.json()
+
+        assert "status" in data and data["status"] == "success"
+        assert "message" in data
+
+@pytest.mark.parametrize("breed, expected_status_code, expected_status_message" , [
+    ("invalidbreed", 404, "error"),
+    ("hound", 200, "success")
+])
+def test_get_random_dog_image_by_breed(breed, expected_status_code, expected_status_message):
+    response = get(f"{BASE_URL}/breed/{breed}/images/random", expected_status=expected_status_code)
+
+    data = response.json()
+
+    assert "status" in data and data["status"] == expected_status_message
+    assert "message" in data
