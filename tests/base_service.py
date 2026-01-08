@@ -7,13 +7,14 @@ logger = create_logger(__name__)
 def http_request(method: str, url: str, expected_status: int = 200, **kwargs) -> requests.Response:
     response = requests.request(method=method, url=url, **kwargs)
 
-    if response.status_code == expected_status:
-        logger.info("OK. URL: %s, Code: %d", url, response.status_code)
-    else:
-        logger.error("ERROR. URL: %s, Code: %d, Body: %s",
-                     url, response.status_code, response.text)
-        assert False, f"{method.upper()} {url} failed: expected {expected_status}, got {response.status_code}"
+    if response.status_code != expected_status:
+        error_msg = (
+            f"{method.upper()} {url} failed: "
+            f"expected {expected_status}, got {response.status_code}"
+        )
+        raise AssertionError(error_msg)
 
+    logger.info(f"OK. URL: {url}, Code: {response.status_code}")
     return response
 
 def get(url, expected_status: int = 200, **kwargs):

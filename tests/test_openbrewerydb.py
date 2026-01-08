@@ -31,6 +31,8 @@ def test_get_breweries_by_city(city):
 
     data = response.json()
 
+    assert len(data) > 0
+
     for brewery in data:
         assert city.lower() in brewery["city"].lower()
 
@@ -58,17 +60,23 @@ def test_get_random_brewery_with_size(params, expected_len):
     assert isinstance(data, list)
     assert len(data) == expected_len
 
-def test_search_breweries():
+@pytest.mark.parametrize("query, page, first_brewery_name, per_page, expected_length", [
+    ("san%diego", 1, "G8 Development, Inc.", 3, 3),
+    ("new%york", 2, "Council Rock Brewery", None, 50),
+    ("washington", None, "Haywire Brewing Company", 200, 200)
+])
+def test_search_breweries(query, page, first_brewery_name, per_page, expected_length):
     params = {
-        "query": "san%20diego",
-        "per_page": "3"
+        "query": query,
+        "page": page,
+        "per_page": per_page
     }
 
     response = get(f"{BASE_URL}/search?", params=params)
 
     data = response.json()
-
     for brewery in data:
         Brewery.model_validate(brewery)
-    assert len(data) == 3
+    assert len(data) == expected_length
+    assert data[0]["name"] == first_brewery_name
 

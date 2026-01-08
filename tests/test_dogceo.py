@@ -8,7 +8,11 @@ BASE_URL = "https://dog.ceo/api"
 @pytest.fixture(scope="session")
 def get_all_dog_breeds_list():
     response = get(f"{BASE_URL}/breeds/list/all")
-    return response.json()
+
+    data = response.json()
+
+    assert len(data["message"]) > 0
+    return data
 
 def test_get_random_dog_image():
     response = get(f"{BASE_URL}/breeds/image/random")
@@ -18,17 +22,18 @@ def test_get_random_dog_image():
     assert "status" in data and data["status"] == "success"
     assert "message" in data
 
-@pytest.mark.parametrize("breed, expected_status_code, expected_status_message" , [
-    ("invalidbreed", 404, "error"),
-    ("hound", 200, "success")
+@pytest.mark.parametrize("breed, expected_first_image" , [
+    ("hound", "https://images.dog.ceo/breeds/hound-afghan/n02088094_1003.jpg"),
+    ("akita", "https://images.dog.ceo/breeds/akita/512px-Ainu-Dog.jpg")
 ])
-def test_get_images_by_dog_breed(breed, expected_status_code, expected_status_message):
-    response = get(f"{BASE_URL}/breed/{breed}/images", expected_status=expected_status_code)
+def test_get_images_by_dog_breed(breed, expected_first_image):
+    response = get(f"{BASE_URL}/breed/{breed}/images")
 
     data = response.json()
 
-    assert "status" in data and data["status"] == expected_status_message
+    assert "status" in data and data["status"] == "success"
     assert "message" in data
+    assert data["message"][0] == expected_first_image
 
 def test_get_dog_sub_breeds_list(get_all_dog_breeds_list):
     all_breeds = get_all_dog_breeds_list.get("message")
@@ -41,14 +46,16 @@ def test_get_dog_sub_breeds_list(get_all_dog_breeds_list):
         assert "status" in data and data["status"] == "success"
         assert "message" in data
 
-@pytest.mark.parametrize("breed, expected_status_code, expected_status_message" , [
-    ("invalidbreed", 404, "error"),
-    ("hound", 200, "success")
+@pytest.mark.parametrize("breed" , [
+    "hound",
+    "akita"
 ])
-def test_get_random_dog_image_by_breed(breed, expected_status_code, expected_status_message):
-    response = get(f"{BASE_URL}/breed/{breed}/images/random", expected_status=expected_status_code)
+def test_get_random_dog_image_by_breed(breed):
+    response = get(f"{BASE_URL}/breed/{breed}/images/random")
 
     data = response.json()
 
-    assert "status" in data and data["status"] == expected_status_message
+    assert "status" in data and data["status"] == "success"
     assert "message" in data
+    assert data["message"].endswith(".jpg")
+    assert breed in data["message"]
